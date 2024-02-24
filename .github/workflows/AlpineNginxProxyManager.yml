@@ -1,0 +1,60 @@
+name: Nginx Proxy Manager
+run-name: Alpine Linux Matrix Build 🚀
+on:
+  workflow_dispatch:
+  push:
+    branches: [ '*' ]
+    tags-ignore: [ '*' ]
+jobs:
+  ProxyManagerOnAlpine:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        alpine: [v3.17, v3.18, v3.19]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          path: main
+
+      - name: Setup Alpine Linux
+        uses: jirutka/setup-alpine@v1
+        with:
+          mirror-url: http://dl-cdn.alpinelinux.org/alpine
+          branch: ${{ matrix.alpine }}
+          packages: bash openrc
+
+      - name: Run script inside Alpine chroot as root
+        run: |
+
+          # Service related stuff for openrc
+          mkdir -p /run/openrc/exclusive
+          touch /run/openrc/softlevel
+          echo 'rc_provide="dev net"' >> /etc/rc.conf
+          # Set Variables
+          export EPS_BASE_URL=$GITHUB_WORKSPACE/main
+          export EPS_CT_INSTALL=false
+          export EPS_CLEANUP=${EPS_CLEANUP:-false}
+          EPS_APP_NAME=${EPS_APP_NAME:-nginx-proxy-manager}
+          export EPS_APP_CONFIG=${EPS_APP_CONFIG:-$(cat $EPS_BASE_URL/apps/$EPS_APP_NAME/config.sh)}
+          export EPS_OS_NAME=$(uname)
+          export EPS_OS_DISTRO=$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)
+          # Maniuplate the common.sh file for stty/pushd/disown/popd command 
+          # and activvate verbose mode and deactivate spinner
+          sed -i 's/__OUTPUT=\/dev\/null/__OUTPUT=\/dev\/stdout/' $EPS_BASE_URL/utils/common.sh
+          sed -i 's/__start_spinner &/#__start_spinner &/' $EPS_BASE_URL/utils/common.sh
+          sed -i 's/__SPIN_PID=$!/#__SPIN_PID=$!/' $EPS_BASE_URL/utils/common.sh
+          sed -i 's/stty/#stty/' $EPS_BASE_URL/utils/common.sh
+          sed -i 's/pushd/cd/' $EPS_BASE_URL/utils/common.sh
+          sed -i 's/disown/#disown/' $EPS_BASE_URL/utils/common.sh
+          sed -i 's/popd/#popd/' $EPS_BASE_URL/utils/common.sh
+          # export and execute the common.sh and alpine.sh and APP install.sh files
+          export EPS_UTILS_COMMON=${EPS_UTILS_COMMON:-$(cat $EPS_BASE_URL/utils/common.sh)}
+          export EPS_UTILS_DISTRO=${EPS_UTILS_DISTRO:-$(cat $EPS_BASE_URL/utils/alpine.sh)}
+          source <(echo -n "$EPS_UTILS_COMMON")
+          source <(echo -n "$EPS_UTILS_DISTRO")
+          source <(echo -n "$EPS_APP_CONFIG")
+          export EPS_APP_INSTALL=${EPS_APP_INSTALL:-$(cat $EPS_BASE_URL/apps/$EPS_APP_NAME/install.sh)}
+          source <(echo -n "$EPS_APP_INSTALL")
+        shell: alpine.sh --root {0}
