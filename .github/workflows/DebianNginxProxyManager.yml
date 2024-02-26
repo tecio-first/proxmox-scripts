@@ -1,0 +1,35 @@
+name: Nginx Proxy Manager
+run-name: Debian Linux Matrix Build 🚀
+on:
+  workflow_dispatch:
+  push:
+    branches: [ '*' ]
+    tags-ignore: [ '*' ]
+jobs:
+    debian-versions:
+      runs-on: ubuntu-latest
+      outputs:
+        lts: ${{ steps.debian-lts-versions.outputs.lts }}
+      steps:
+        - name: Get LTS debian details
+          id: debian-lts-versions
+          uses: rcarpio-hbo/debian-lts-versions@1.0.0
+        - name: Test action output
+          run: |
+            echo "${{ steps.debian-lts-versions.outputs.min }}"
+            echo "${{ steps.debian-lts-versions.outputs.max }}"
+          shell: bash
+  
+    test-versions:
+      runs-on: ubuntu-latest
+      needs: [debian-versions]
+      strategy:
+        fail-fast: false
+        matrix:
+          version: ${{ fromJson(needs.debian-versions.outputs.lts) }}
+      steps:
+        - name: Test action output
+          run: |
+            echo "${{ matrix.version }}"
+          shell: bash
+  
