@@ -9,8 +9,11 @@ jobs:
     debian-versions:
       runs-on: ubuntu-latest
       continue-on-error: true
+      strategy:
+        matrix:
+          debian: [10, 11, 12]
       container:
-        image: debian:12-slim
+        image: ${{ matrix.debian }}
       steps:
         - name: Check out repository code
           uses: actions/checkout@v4
@@ -18,7 +21,5 @@ jobs:
             path: main
         - name: Test action output
           run: |
-            printf $(dpkg --print-architecture)
             printf $(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)
-            printf $(awk -F'=' '/^VERSION_ID=/{ print $NF }' /etc/os-release)
           shell: bash
