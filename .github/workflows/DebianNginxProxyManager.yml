@@ -26,11 +26,15 @@ jobs:
             export TERM=xterm
             export DEBIAN_FRONTEND=noninteractive
             # Install Packages
-            apt-get update && apt-get install wget unzip zip systemd systemd-sysv -y
-            # Service related stuff for openrc
-            #mkdir -p /run/openrc/exclusive
-            #touch /run/openrc/softlevel
-            #echo 'rc_provide="dev net"' >> /etc/rc.conf
+            apt-get update && apt-get install wget unzip zip -y
+            
+            # Service related stuff for Sysvinit
+            sed -i 's/systemctl daemon-reload >$__OUTPUT/service $@ restart >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl stop $@ &>$__OUTPUT/service $@ stop >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl stop $@ >$__OUTPUT/service $@ stop >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl enable --now $@ >$__OUTPUT/chkconfig $@ on >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl start $@ >$__OUTPUT/service $@ start >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            
             # Set Variables
             export EPS_BASE_URL=$GITHUB_WORKSPACE/main
             export EPS_CT_INSTALL=false
