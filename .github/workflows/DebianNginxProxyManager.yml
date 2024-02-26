@@ -21,9 +21,12 @@ jobs:
             path: main
         - name: Test action output
           run: |
+
             # Docker related stuff
             export TERM=xterm
             export DEBIAN_FRONTEND=noninteractive
+            # Install Packages
+            apt-get install -y wget
             # Service related stuff for openrc
             #mkdir -p /run/openrc/exclusive
             #touch /run/openrc/softlevel
