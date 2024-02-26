@@ -40,8 +40,8 @@ jobs:
           export EPS_APP_CONFIG=${EPS_APP_CONFIG:-$(cat $EPS_BASE_URL/apps/$EPS_APP_NAME/config.sh)}
           export EPS_OS_NAME=$(uname)
           export EPS_OS_DISTRO=$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)
-          # Maniuplate the common.sh file for stty/pushd/disown/popd command 
-          # and activvate verbose mode and deactivate spinner
+          # Manipulate the common.sh file for stty/pushd/disown/popd command 
+          # and activate verbose mode and deactivate spinner
           sed -i 's/__OUTPUT=\/dev\/null/__OUTPUT=\/dev\/stdout/' $EPS_BASE_URL/utils/common.sh
           sed -i 's/__start_spinner &/#__start_spinner &/' $EPS_BASE_URL/utils/common.sh
           sed -i 's/__SPIN_PID=$!/#__SPIN_PID=$!/' $EPS_BASE_URL/utils/common.sh
