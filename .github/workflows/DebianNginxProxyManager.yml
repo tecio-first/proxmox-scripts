@@ -53,4 +53,4 @@ jobs:
             source <(echo -n "$EPS_APP_CONFIG")
             export EPS_APP_INSTALL=${EPS_APP_INSTALL:-$(cat $EPS_BASE_URL/apps/$EPS_APP_NAME/install.sh)}
             source <(echo -n "$EPS_APP_INSTALL")
-          shell: bash
+          shell: sh
