@@ -37,6 +37,37 @@ jobs:
             sed -i 's|EPS_SERVICE_FILE=/lib/systemd/system/npm.service|EPS_SERVICE_FILE=/etc/init.d/npm|' $EPS_BASE_URL/apps/$EPS_APP_NAME/config.sh
             cat $EPS_BASE_URL/apps/$EPS_APP_NAME/config.sh
             sed -i 's|EPS_SERVICE_DATA=.*|EPS_SERVICE_DATA='\''#!/bin/sh\n### BEGIN INIT INFO\n# Provides:npm\n# Required-Start:$network $local_fs $remote_fs\n# Required-Stop:$network $local_fs $remote_fs\n# Default-Start:2 3 4 5\n# Default-Stop:0 1 6\n# Short-Description:Start/stop Nginx Proxy Manager\n### END INIT INFO\ncase "$1" in\n  start)\n    echo "Starting Nginx Proxy Manager..."\n    mkdir -p /tmp/nginx/body /data/letsencrypt-acme-challenge\n    NODE_ENV=production /usr/local/bin/node /app/index.js --abort_on_uncaught_exception --max_old_space_size=250 &\n    ;;\n  stop)\n    echo "Stopping Nginx Proxy Manager..."\n    killall node\n    ;;\n  *)\n    echo "Usage:/etc/init.d/npm {start|stop}"\n    exit 1\n    ;;\nesac\nexit 0'\''|' $EPS_BASE_URL/apps/$EPS_APP_NAME/config.sh
+            
+            cat << 'EOF' > replacement.txt
+            #!/bin/sh
+            ### BEGIN INIT INFO
+            # Provides:          npm
+            # Required-Start:    $network $local_fs $remote_fs
+            # Required-Stop:     $network $local_fs $remote_fs
+            # Default-Start:     2 3 4 5
+            # Default-Stop:      0 1 6
+            # Short-Description: Start/stop Nginx Proxy Manager
+            ### END INIT INFO
+            case "$1" in
+                start)
+                    echo "Starting Nginx Proxy Manager..."
+                    mkdir -p /tmp/nginx/body /data/letsencrypt-acme-challenge
+                    NODE_ENV=production /usr/local/bin/node /app/index.js --abort_on_uncaught_exception --max_old_space_size=250 &
+                    ;;
+                stop)
+                    echo "Stopping Nginx Proxy Manager..."
+                    killall node
+                    ;;*)
+                    echo "Usage:/etc/init.d/npm {start|stop}"
+                    exit 1
+                    ;;
+            esac
+            exit 0
+            EOF
+
+            sed -i "/EPS_SERVICE_DATA=/c\EPS_SERVICE_DATA=\"$(<replacement.txt)\"" config.sh
+
+
             export EPS_APP_CONFIG=${EPS_APP_CONFIG:-$(cat $EPS_BASE_URL/apps/$EPS_APP_NAME/config.sh)}
             export EPS_OS_NAME=$(uname)
             export EPS_OS_DISTRO=$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)
