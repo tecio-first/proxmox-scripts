@@ -23,6 +23,10 @@ jobs:
           run: |
             # Docker related stuff
             export TERM=xterm
+            echo "################# OS INFO #################"
+            printf $(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)
+            printf /etc/container_environment/OS_NAME
+            echo "################# OS INFO #################"
             # Service related stuff for openrc
             #mkdir -p /run/openrc/exclusive
             #touch /run/openrc/softlevel
