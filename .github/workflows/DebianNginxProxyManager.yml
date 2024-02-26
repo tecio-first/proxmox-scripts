@@ -10,7 +10,7 @@ jobs:
       runs-on: ubuntu-latest
       continue-on-error: true
       container:
-        image: debian:lts-slim
+        image: debian:12-slim
       steps:
         - name: Check out repository code
           uses: actions/checkout@v4
