@@ -11,7 +11,7 @@ jobs:
       continue-on-error: true
       strategy:
         matrix:
-          debian: [10, 11, 12]
+          debian: [10, 11, debian:12]
       container:
         image: ${{ matrix.debian }}
       steps:
