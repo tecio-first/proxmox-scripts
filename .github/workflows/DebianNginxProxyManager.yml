@@ -18,7 +18,7 @@ jobs:
             path: main
         - name: Test action output
           run: |
-            printf (dpkg --print-architecture)
+            printf $(dpkg --print-architecture)
             printf $(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)
             printf $(awk -F'=' '/^VERSION_ID=/{ print $NF }' /etc/os-release)
           shell: bash
