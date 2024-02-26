@@ -8,15 +8,17 @@ on:
 jobs:
     debian-versions:
       runs-on: ubuntu-latest
-      outputs:
-        lts: ${{ steps.debian-lts-versions.outputs.lts }}
+      continue-on-error: true
+      container:
+        image: debian:lts-slim
       steps:
-        - name: Get LTS debian details
-          id: debian-lts-versions
-          uses: rcarpio-hbo/debian-lts-versions@1.0.0
+        - name: Check out repository code
+          uses: actions/checkout@v4
+          with:
+            path: main
         - name: Test action output
           run: |
-            echo "${{ steps.debian-lts-versions.outputs.min }}"
-            echo "${{ steps.debian-lts-versions.outputs.max }}"
+            printf (dpkg --print-architecture)
+            printf $(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)
+            printf $(awk -F'=' '/^VERSION_ID=/{ print $NF }' /etc/os-release)
           shell: bash
-  
