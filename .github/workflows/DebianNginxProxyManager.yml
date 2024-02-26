@@ -21,7 +21,8 @@ jobs:
             path: main
         - name: Test action output
           run: |
-            /bin/bash
+            # Docker related stuff
+            export TERM=xterm
             # Service related stuff for openrc
             #mkdir -p /run/openrc/exclusive
             #touch /run/openrc/softlevel
