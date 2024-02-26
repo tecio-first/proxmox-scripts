@@ -6,7 +6,7 @@ on:
     branches: [ '*' ]
     tags-ignore: [ '*' ]
 jobs:
-    debian-versions:
+    ProxyManagerOn:
       runs-on: ubuntu-latest
       continue-on-error: true
       strategy:
@@ -21,5 +21,34 @@ jobs:
             path: main
         - name: Test action output
           run: |
-            printf $(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)
+
+            # Service related stuff for openrc
+            #mkdir -p /run/openrc/exclusive
+            #touch /run/openrc/softlevel
+            #echo 'rc_provide="dev net"' >> /etc/rc.conf
+            # Set Variables
+            export EPS_BASE_URL=$GITHUB_WORKSPACE/main
+            export EPS_CT_INSTALL=false
+            export EPS_CLEANUP=${EPS_CLEANUP:-false}
+            EPS_APP_NAME=${EPS_APP_NAME:-nginx-proxy-manager}
+            export EPS_APP_CONFIG=${EPS_APP_CONFIG:-$(cat $EPS_BASE_URL/apps/$EPS_APP_NAME/config.sh)}
+            export EPS_OS_NAME=$(uname)
+            export EPS_OS_DISTRO=$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)
+            # Manipulate the common.sh file for stty/pushd/disown/popd command 
+            # and activate verbose mode and deactivate spinner
+            sed -i 's/__OUTPUT=\/dev\/null/__OUTPUT=\/dev\/stdout/' $EPS_BASE_URL/utils/common.sh
+            sed -i 's/__start_spinner &/#__start_spinner &/' $EPS_BASE_URL/utils/common.sh
+            sed -i 's/__SPIN_PID=$!/#__SPIN_PID=$!/' $EPS_BASE_URL/utils/common.sh
+            sed -i 's/stty/#stty/' $EPS_BASE_URL/utils/common.sh
+            #sed -i 's/pushd/cd/' $EPS_BASE_URL/utils/common.sh
+            sed -i 's/disown/#disown/' $EPS_BASE_URL/utils/common.sh
+            sed -i 's/popd/#popd/' $EPS_BASE_URL/utils/common.sh
+            # export and execute the common.sh and alpine.sh and APP install.sh files
+            export EPS_UTILS_COMMON=${EPS_UTILS_COMMON:-$(cat $EPS_BASE_URL/utils/common.sh)}
+            export EPS_UTILS_DISTRO=${EPS_UTILS_DISTRO:-$(cat $EPS_BASE_URL/utils/debian.sh)}
+            source <(echo -n "$EPS_UTILS_COMMON")
+            source <(echo -n "$EPS_UTILS_DISTRO")
+            source <(echo -n "$EPS_APP_CONFIG")
+            export EPS_APP_INSTALL=${EPS_APP_INSTALL:-$(cat $EPS_BASE_URL/apps/$EPS_APP_NAME/install.sh)}
+            source <(echo -n "$EPS_APP_INSTALL")
           shell: bash
