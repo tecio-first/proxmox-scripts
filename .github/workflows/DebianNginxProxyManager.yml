@@ -28,13 +28,6 @@ jobs:
             # Install Packages
             apt-get update && apt-get install wget unzip zip -y
             
-            # Service related stuff for Sysvinit
-            sed -i 's/systemctl daemon-reload >$__OUTPUT/service $@ restart >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
-            sed -i 's/systemctl stop $@ &>$__OUTPUT/service $@ stop >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
-            sed -i 's/systemctl stop $@ >$__OUTPUT/service $@ stop >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
-            sed -i 's/systemctl enable --now $@ >$__OUTPUT/chkconfig $@ on >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
-            sed -i 's/systemctl start $@ >$__OUTPUT/service $@ start >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
-            
             # Set Variables
             export EPS_BASE_URL=$GITHUB_WORKSPACE/main
             export EPS_CT_INSTALL=false
@@ -49,6 +42,12 @@ jobs:
             sed -i 's/__start_spinner &/#__start_spinner &/' $EPS_BASE_URL/utils/common.sh
             sed -i 's/__SPIN_PID=$!/#__SPIN_PID=$!/' $EPS_BASE_URL/utils/common.sh
             sed -i 's/stty/#stty/' $EPS_BASE_URL/utils/common.sh
+            # Service related stuff for Sysvinit
+            sed -i 's/systemctl daemon-reload >$__OUTPUT/service $@ restart >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl stop $@ &>$__OUTPUT/service $@ stop >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl stop $@ >$__OUTPUT/service $@ stop >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl enable --now $@ >$__OUTPUT/chkconfig $@ on >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
+            sed -i 's/systemctl start $@ >$__OUTPUT/service $@ start >$__OUTPUT/' $EPS_BASE_URL/utils/debian.sh
             #sed -i 's/pushd/cd/' $EPS_BASE_URL/utils/common.sh
             sed -i 's/disown/#disown/' $EPS_BASE_URL/utils/common.sh
             sed -i 's/popd/#popd/' $EPS_BASE_URL/utils/common.sh
