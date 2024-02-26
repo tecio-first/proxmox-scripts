@@ -27,7 +27,7 @@ jobs:
             export DEBIAN_FRONTEND=noninteractive
             # Install Packages
             #apt-utils
-            apt-get install apt-utils -y
+            apt-get install wget -y
             # Service related stuff for openrc
             #mkdir -p /run/openrc/exclusive
             #touch /run/openrc/softlevel
