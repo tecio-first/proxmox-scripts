@@ -21,7 +21,7 @@ jobs:
             path: main
         - name: Test action output
           run: |
-
+            /bin/bash
             # Service related stuff for openrc
             #mkdir -p /run/openrc/exclusive
             #touch /run/openrc/softlevel
