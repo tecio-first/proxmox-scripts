@@ -26,7 +26,7 @@ jobs:
             export TERM=xterm
             export DEBIAN_FRONTEND=noninteractive
             # Install Packages
-            apt-get update && apt-get install wget unzip zip -y
+            apt-get update && apt-get install wget unzip zip systemd systemd-sysv -y
             # Service related stuff for openrc
             #mkdir -p /run/openrc/exclusive
             #touch /run/openrc/softlevel
